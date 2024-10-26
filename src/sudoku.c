@@ -5,16 +5,12 @@ int sudoku_rand(int rmin, int rmax);
 int sudoku_getch(void);
 int sudoku_getpos(int *x, int *y);
 void sudoku_new(sudoku_t sudoku, int hard_pos[40], int* hard_index);
-void sudoku_display(sudoku_t sudoku, int row, int col, int hard_pos[40]);
+void sudoku_display(sudoku_t sudoku, int row, int col, int hard_pos[40], int hard_index);
 int sudoku_check_fields(sudoku_t sudoku, int row, int col, int num);
 int sudoku_completed(sudoku_t sudoku);
 void sudoku_end(struct termios* old);
 
 int main(__unused int argc, __unused char* argv[]) {
-
-	while (1) {
-		if (sudoku_rand(0, 8) < 0) return 1;
-	}
 
 	int
 		xpos,
@@ -35,7 +31,7 @@ int main(__unused int argc, __unused char* argv[]) {
 	sudoku_getpos(&ypos, &xpos);
 
 	while (!sudoku_completed(sudoku) && !quit) {
-		sudoku_display(sudoku, row_pos, col_pos, hard_pos);
+		sudoku_display(sudoku, row_pos, col_pos, hard_pos, hard_index);
 		input = sudoku_getch();
 		switch (input) {
 		case SD_UP:
@@ -61,7 +57,7 @@ int main(__unused int argc, __unused char* argv[]) {
 		default:
 			if (sudoku_check_fields(sudoku, row_pos, col_pos, input - '0') == SD_SAFE) {
 				int safe = 1;
-				for (int i = 0; i < 40; i += 2) {
+				for (int i = 0; i < hard_index; i += 2) {
 					if (row_pos == hard_pos[i] && col_pos == hard_pos[i + 1]) {
 						safe = 0;
 						break;
@@ -171,8 +167,6 @@ void sudoku_new(sudoku_t sudoku, int hard_pos[40], int* hard_index) {
 				continue;
 			}
 
-			printf("VALUE: %d\tROW: %d\tCOL: %d\n", value, i, pos);
-
 			sudoku[i][pos] = value;
 			hard_pos[*hard_index] = i;
 			hard_pos[*hard_index + 1] = pos;
@@ -190,7 +184,7 @@ int sudoku_completed(sudoku_t sudoku) {
 	return 1;
 }
 
-__hot void sudoku_display(sudoku_t sudoku, int row, int col, int hard_pos[40]) {
+__hot void sudoku_display(sudoku_t sudoku, int row, int col, int hard_pos[40], int hard_index) {
 	int lnw = 23;
 
 	unicode(BOX_LEFT_UP);
@@ -224,7 +218,7 @@ __hot void sudoku_display(sudoku_t sudoku, int row, int col, int hard_pos[40]) {
 			}
 			else {
 				bool hard_value = 0;
-				for (int hard_i = 0; hard_i < 40; hard_i += 2) {
+				for (int hard_i = 0; hard_i < hard_index; hard_i += 2) {
 					if (i == hard_pos[hard_i] && j == hard_pos[hard_i + 1]) {
 						hard_value = 1;
 						break;
