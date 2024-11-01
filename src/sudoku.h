@@ -27,6 +27,9 @@
 #define SD_HIDE_CURSOR	fputs("\033[?25l", stdout);
 #define SD_SHOW_CURSOR	fputs("\033[?25h", stdout);
 
+#define SD_CURSOR_UP(x) printf("\033[%dF", x);
+#define SD_CURSOR_LEFT(x) printf("\033[%dD", x);
+
 #define SD_SIZE 		9
 #define SD_SAFE 		0
 #define SD_NOT_SAFE 	1
@@ -37,6 +40,25 @@
 #define SD_RIGHT		100
 #define SD_LEFT			97
 
-typedef int sudoku_t[SD_SIZE][SD_SIZE];
+struct sudoku_pos {
+	int row;
+	int col;
+};
+
+struct sudoku_t {
+	int table[SD_SIZE][SD_SIZE];
+	struct sudoku_pos hard_pos[40];
+	int hard_count;
+};
+
+int sudoku_rand(int rmin, int rmax);
+int sudoku_getch(void);
+int sudoku_completed(const struct sudoku_t* sudoku);
+int sudoku_check_fields(const struct sudoku_t* sudoku, struct sudoku_pos pos, int num);
+void sudoku_init(struct termios* old);
+void sudoku_new(struct sudoku_t* sudoku);
+void sudoku_display(const struct sudoku_t* sudoku, int crow, int ccol);
+void sudoku_end(struct termios* old);
+
 
 #endif
