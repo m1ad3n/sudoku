@@ -34,6 +34,7 @@
 #define SD_SAFE 		0
 #define SD_NOT_SAFE 	1
 
+#define SD_SOLVE 		99
 #define SD_QUIT			113
 #define SD_UP			119
 #define SD_DOWN			115
@@ -55,8 +56,10 @@ int sudoku_rand(int rmin, int rmax);
 int sudoku_getch(void);
 int sudoku_completed(const struct sudoku_t* sudoku);
 int sudoku_check_fields(const struct sudoku_t* sudoku, struct sudoku_pos pos, int num);
+bool sudoku_solve(struct sudoku_t* sudoku, int row, int col);
 void sudoku_init(struct termios* old);
 void sudoku_new(struct sudoku_t* sudoku);
+void sudoku_clear(struct sudoku_t* sudoku);
 void sudoku_display(const struct sudoku_t* sudoku, int crow, int ccol);
 void sudoku_end(struct termios* old);
 

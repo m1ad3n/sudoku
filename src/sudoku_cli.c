@@ -12,11 +12,15 @@ int main(__unused int argc, __unused char* argv[]) {
 		quit = 0;
 
 	sudoku_init(&oldattr);
-	sudoku_new(&sudoku);
+
+	do {
+		sudoku_new(&sudoku);
+	} while (!sudoku_solve(&sudoku, 0, 0));
+
+	sudoku_clear(&sudoku);
+	sudoku_display(&sudoku, row_pos, col_pos);
 
 	while (!sudoku_completed(&sudoku) && !quit) {
-		sudoku_display(&sudoku, row_pos, col_pos);
-
 		input = sudoku_getch();
 
 		switch (input) {
@@ -40,6 +44,11 @@ int main(__unused int argc, __unused char* argv[]) {
 			quit = 1;
 			break;
 
+		case SD_SOLVE:
+			sudoku_clear(&sudoku);
+			quit = 2;
+			break;
+
 		default:
 			if (sudoku_check_fields(&sudoku, (struct sudoku_pos){row_pos, col_pos}, input - '0') == SD_SAFE)
 			{
@@ -56,6 +65,13 @@ int main(__unused int argc, __unused char* argv[]) {
 		}
 		SD_CURSOR_UP(12);
 		SD_CURSOR_LEFT(30);
+		sudoku_display(&sudoku, row_pos, col_pos);
+	}
+
+	if (quit == 2) {
+		printf("\nmight take some time ...\n");
+		sudoku_solve(&sudoku, 0, 0);
+		sudoku_display(&sudoku, -1, -1);
 	}
 
 	putchar('\n');

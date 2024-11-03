@@ -51,7 +51,7 @@ void sudoku_new(struct sudoku_t* sudoku) {
 
 	struct sudoku_pos pos;
 	for (int row = 0; row < SD_SIZE; row++) {
-		int n = sudoku_rand(1, 4);
+		int n = sudoku_rand(2, 4);
 		for (int j = 0; j < n; j++) {
 
 			int col = sudoku_rand(0, 8);
@@ -77,6 +77,53 @@ int sudoku_completed(const struct sudoku_t* sudoku) {
 		}
 	}
 	return 1;
+}
+
+static bool in_arr(struct sudoku_pos* arr, size_t size, struct sudoku_pos n) {
+	for (size_t i = 0; i < size; i++) {
+		if (arr[i].row == n.row && arr[i].col == n.col)
+			return true;
+	}
+	return false;
+}
+
+void sudoku_clear(struct sudoku_t* sudoku) {
+	for (int row = 0; row < SD_SIZE; row++) {
+		for (int col = 0; col < SD_SIZE; col++) {
+			if (!in_arr(sudoku->hard_pos, sudoku->hard_count,
+				(struct sudoku_pos){row, col}))
+				sudoku->table[row][col] = 0;
+		}
+	}
+}
+
+bool sudoku_solve(struct sudoku_t* sudoku, int row, int col) {
+	// end of the sudoku
+	if (row == SD_SIZE - 1 && col == SD_SIZE)
+		return true;
+
+	// use next row
+	if (col == SD_SIZE) {
+		col = 0;
+		row++;
+	}
+
+	// if value is already set
+	if (sudoku->table[row][col] > 0)
+		return sudoku_solve(sudoku, row, col + 1);
+
+	// check every combination for the position
+	for (int num = 1; num <= 9; num++) {
+		if (!sudoku_check_fields(sudoku, (struct sudoku_pos){row, col}, num)) {
+			sudoku->table[row][col] = num;
+			if (sudoku_solve(sudoku, row, col + 1))
+				return true;
+		}
+		// use next number
+		sudoku->table[row][col] = 0;
+	}
+	// cant be solved
+	return false;
 }
 
 __hot void sudoku_display(const struct sudoku_t* sudoku, int crow, int ccol) {
